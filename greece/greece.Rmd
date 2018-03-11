@@ -1,0 +1,65 @@
+---
+title: "SP Project"
+author: "Fisher Ankney"
+date: "3/11/2018"
+output: html_document
+---
+
+PLAN - 
+
+- Normal picture of greece (DATA RETRIEVED)
+
+- administrative areas (DATA RETRIEVED)
+http://www.diva-gis.org/gdata
+
+- population distribution (DATA RETRIEVED)
+http://www.diva-gis.org/gdata
+
+- land cover / climate via raster? (DATA RETRIEVED)
+http://www.diva-gis.org/gdata
+
+- arceology in Crete (DATA RETRIEVED)
+
+- athens airbnb data (DATA RETRIEVED)
+http://insideairbnb.com/get-the-data.html
+
+```{r}
+library('tidyverse')    
+library('ggmap')
+library('sp')
+library('tmap')
+library('raster')
+library('rgdal')
+library('tigris')
+library('RColorBrewer')
+library('viridisLite')
+```
+
+
+```{r}
+crete <- c(lon = 24.8093, lat = 35.2401)
+
+crete_far <- get_map(crete, zoom = 5, scale = 1, maptype="terrain")
+
+ggmap(crete_far)
+```
+
+```{r}
+# Get map at zoom level 13: corvallis_map
+crete_map <- get_map(crete, zoom = 8, scale = 1)
+
+# Plot map at zoom level 13
+ggmap(crete_map)
+```
+
+Arceology and Earthquakes on Crete - 
+
+https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%B9-%CE%BD%CE%B1%CE%BF%CE%B9
+https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%BB%CE%BF%CE%B3%CE%B9%CE%BA%CE%BF%CE%B9-%CF%87%CF%89%CF%81%CE%BF%CE%B9
+https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CE%BD%CE%B1%CE%BA%CF%84%CE%BF%CF%81%CE%B1
+earthquakes - https://www.apdkritis.gov.gr/el/dataset/%CF%83%CE%B5%CE%B9%CF%83%CE%BC%CE%BF%CE%B9-%CF%83%CF%84%CE%B7%CE%BD-%CE%BA%CF%81%CE%B7%CF%84%CE%B7
+
+```{r}
+```
+
+

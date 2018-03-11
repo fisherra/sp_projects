@@ -1,0 +1,537 @@
+---
+title: "Geospatial Package Notes"
+author: "Fisher Ankney"
+date: "3/8/2018"
+output: html_document
+---
+
+Important Packages for Geospatial Data - 
+
+ggmap - basic map download from several sources
+ggplot2 - useful with ggmap, basic maps 
+
+sp - classes and methods for spatial data
+tmap - really good mapping package
+
+raster - good for raster data
+
+RColorBrewer - colors
+Viridislite - colors 
+
+rgdal - bindings for geospatial data 
+tigris - download and use census shapefiles
+
+
+```{r}
+library('ggmap')
+corvallis <- c(lon = -123.2620, lat = 44.5646)
+
+# Get map at zoom level 5: map_5
+map_5 <- get_map(corvallis, zoom = 5, scale = 1)
+
+# Plot map at zoom level 5
+ggmap(map_5)
+
+# Get map at zoom level 13: corvallis_map
+corvallis_map <- get_map(corvallis, zoom = 13, scale = 1)
+
+# Plot map at zoom level 13
+ggmap(corvallis_map)
+```
+
+you can add layers of data to ggmap, call +geom_point() to overlay data points onto a map. 
+
+```{r}
+# Look at head() of sales
+head(sales)
+
+# Swap out call to ggplot() with call to ggmap()
+# ggmap(corvallis_map) +
+#  geom_point(aes(lon, lat), data = sales)
+```
+
+
+```
+# Map color to price / finished_squarefeet
+ggmap(corvallis_map) +
+  geom_point(aes(lon, lat, color = price / finished_squarefeet), data = sales)
+```
+
+source and type of map default is maptype = "terrain", source = "google"
+
+extent controls how much of the plotting area the map takes up, plot range also important in ggmap()
+
+types of data - 
+- point data <br>
+- line data <br> 
+- polygon data <br> 
+- raster data <br> 
+
+SP package - 
+spatial package objects for point, line, polygon data 
+sp objects important to master
+
+Practice accessing slots, an object oriented type of 
+
+
+
+```
+# Create logical vector: is_nz
+is_nz <- countries_spdf$name == "New Zealand"
+
+# Subset countries_spdf using is_nz: nz
+nz <- countries_spdf[[is_nz, ]]
+
+# Plot nz
+plot(nz)
+```
+
+
+tmap package
+```{r}
+library(tmap)
+```
+
+```{r}
+tm_shape(Europe) + 
+  tm_borders() + 
+  tm_fill(col = "part") + 
+  tm_compass() + 
+  tmap_style("cobalt")
+```
+
+so ggplot2 and tmap are similiar, but ggplot2 is designed for dataframe data, tmap expect data to be stored in a spatial object. each layer contains a mapping variable. 
+
+tmap provides no functions equivilant to the scale functions, all tweaks are in the layer call, tm_shape defines data for any subsequent layer, multiple calls possible
+
+```
+library(sp)
+library(tmap)
+
+# Add style argument to the tm_fill() call
+tm_shape(countries_spdf) +
+  tm_fill(col = "population", style = "quantile") +
+  # Add a tm_borders() layer 
+  tm_borders(col = "burlywood4")
+
+# New plot, with tm_bubbles() instead of tm_fill()
+tm_shape(countries_spdf) + 
+tm_bubbles(size = "population") + 
+tm_borders(col = "burlywood4")
+
+```
+
+
+```
+library(sp)
+library(tmap)
+
+# Switch to a Hobo–Dyer projection
+tm_shape(countries_spdf, projection = "hd") +
+  tm_grid(n.x = 11, n.y = 11) +
+  tm_fill(col = "population", style = "quantile")  +
+  tm_borders(col = "burlywood4") 
+
+# Switch to a Robinson projection
+tm_shape(countries_spdf, projection = "robin") +
+  tm_grid(n.x = 11, n.y = 11) +
+  tm_fill(col = "population", style = "quantile")  +
+  tm_borders(col = "burlywood4") 
+
+# Add tm_style_classic() to your plot
+tm_shape(countries_spdf, projection = "robin") + 
+tm_grid(n.x = 11, n.y = 11) + 
+tm_fill(col = "population", style = "quantile") + 
+tm_borders(col = "burlywood4") + 
+tm_style_classic()
+```
+
+fun idea! plot the countries ive been to using this old world style! 
+
+```
+library(sp)
+library(tmap)
+
+# Plot from last exercise
+tm_shape(countries_spdf) +
+  tm_grid(n.x = 11, n.y = 11, projection = "longlat") +
+  tm_fill(col = "population", style = "quantile")  +
+  tm_borders(col = "burlywood4")
+
+# Save a static version "population.png"
+save_tmap(filename = "populaton.png")
+
+# Save an interactive version "population.html
+save_tmap(filename = "population.html")
+```
+
+### The raster package 
+
+raster provides print methods for sp objects, cool
+
+```
+summary(pop)
+
+str(pop)
+
+# Call plot() on pop
+plot(pop)
+
+# Call str() on values(pop)
+val_pop <- values(pop)
+str(val_pop)
+
+
+# Call head() on values(pop)
+head(val_pop)
+```
+
+```
+# Print pop_by_age
+pop_by_age
+
+# Subset out the under_1 layer using [[
+pop_by_age[["under_1"]]
+
+# Plot the under_1 layer
+plot(pop_by_age[["under_1"]])
+```
+
+RColorBrewer good for maps
+
+colors 
+
+```
+library(RColorBrewer)
+# 9 steps on the RColorBrewer "BuPu" palette: blups
+blups <- brewer.pal(9, "BuPu")
+
+# Add scale_fill_gradientn() with the blups palette
+ggplot(preds) +
+  geom_tile(aes(lon, lat, fill = predicted_price), alpha = 0.8) +
+  scale_fill_gradientn(colors = blups)
+
+library(viridisLite)
+# viridisLite viridis palette with 9 steps: vir
+vir <- viridis(9)
+
+# Add scale_fill_gradientn() with the vir palette
+ggplot(preds) +
+  geom_tile(aes(lon, lat, fill = predicted_price), alpha = 0.8) +
+  scale_fill_gradientn(colors = vir)
+  
+# mag: a viridisLite magma palette with 9 steps
+mag <- magma(9)
+
+# Add scale_fill_gradientn() with the mag palette
+ggplot(preds) +
+  geom_tile(aes(lon, lat, fill = predicted_price), alpha = 0.8) +
+  scale_fill_gradientn(colors = mag)  
+```
+
+library('classInt')
+
+
+```
+mag <- viridisLite::magma(7)
+
+library(classInt)
+
+# Create 5 "pretty" breaks with classIntervals()
+classIntervals(values(prop_by_age$age_18_24), n = 5, style = "pretty")
+
+# Create 5 "quantile" breaks with classIntervals()
+classIntervals(values(prop_by_age$age_18_24), n = 5, style = "quantile")
+
+
+
+# Use 5 "quantile" breaks in tm_raster()
+tm_shape(prop_by_age) +
+  tm_raster("age_18_24", palette = mag, n = 5, style = "quantile") +
+  tm_legend(position = c("right", "bottom"))
+
+# Create histogram of proportions
+hist(values(prop_by_age)[, "age_18_24"])
+
+# Use fixed breaks in tm_raster()
+tm_shape(prop_by_age) +
+  tm_raster("age_18_24", palette = mag,
+    style = "fixed", breaks = c(0.025, 0.05, 0.1, 0.2, 0.25, 0.3, 1))
+
+# Save your plot to "prop_18-24.html"
+save_tmap(filename = "prop_18-24.html")
+```
+
+```
+# Print migration
+migration
+
+# Diverging "RdGy" palette
+red_gray <- brewer.pal(n = 7, "RdGy")
+
+# Use red_gray as the palette 
+tm_shape(migration) +
+  tm_raster(palette = red_gray) +
+  tm_legend(outside = TRUE, outside.position = c("bottom"))
+
+# Add fixed breaks 
+tm_shape(migration) +
+  tm_raster(palette = red_gray,style = "fixed", breaks = c(-5e6, -5e3, -5e2, -5e1, 5e1, 5e2, 5e3, 5e6)) +
+  tm_legend(outside = TRUE, outside.position = c("bottom"))
+  ```
+  
+  
+```
+library(raster)
+
+# Plot land_cover
+tm_shape(land_cover) +
+  tm_raster() 
+
+# Palette like the ggplot2 default
+hcl_cols <- hcl(h = seq(15, 375, length = 9), 
+                c = 100, l = 65)[-9]
+
+# Use hcl_cols as the palette
+tm_shape(land_cover) +
+  tm_raster(palette = hcl_cols) 
+
+# Examine levels of land_cover
+levels(land_cover)
+
+# A set of intuitive colors
+intuitive_cols <- c(
+  "darkgreen",
+  "darkolivegreen4",
+  "goldenrod2",
+  "seagreen",
+  "wheat",
+  "slategrey",
+  "white",
+  "lightskyblue1"
+)
+
+# Use intuitive_cols as palette
+tm_shape(land_cover) +
+  tm_raster(palette = intuitive_cols) +
+  tm_legend(position = c("left", "bottom"))
+  ```
+  
+  
+  reading shape files into R 
+  
+library(sp)
+library(rgdal)
+
+readOGR() from the rgdal package
+two arguements, dsn and layer
+
+
+```
+library(sp)
+library(rgdal)
+
+# Use dir() to find directory name
+dir()
+
+# Call dir() with directory name
+dir("nynta_16c")
+
+# Read in shapefile with readOGR(): neighborhoods
+neighborhoods <- readOGR("nynta_16c", "nynta")
+
+# summary() of neighborhoods
+summary(neighborhoods)
+```
+taken from here - https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page
+
+
+reading in a raster from here - http://sedac.ciesin.columbia.edu/data/collection/usgrid
+
+```
+library(raster) 
+
+# Call dir()
+dir()
+
+# Call dir() on the directory
+dir("nyc_grid_data")
+
+# Use raster() with file path: income_grid
+income_grid <- raster("nyc_grid_data/m5602ahhi00.tif")
+
+# Call summary() on income_grid
+summary(income_grid)
+
+# Call plot() on income_grid
+plot(income_grid)
+```
+
+
+data comes from packages nicely 
+rnaturalearth package is good 
+tigris package provides a way to easily download and import shapefiles based on US Census geographies 
+```
+library(sp)
+library(tigris)
+
+# Call tracts(): nyc_tracts
+nyc_tracts <- tracts(state = "NY", county = "New York", cb = TRUE)
+
+# Call summary() on nyc_tracts
+summary(nyc_tracts)
+
+# Plot nyc_tracts
+plot(nyc_tracts)
+```
+
+
+conforming coordinate systems using sptransform 
+
+```
+library(sp)
+
+# proj4string() on nyc_tracts and neighborhoods
+proj4string(neighborhoods)
+proj4string(nyc_tracts)
+
+# coordinates() on nyc_tracts and neighborhoods
+coordinates(nyc_tracts)
+coordinates(neighborhoods)
+
+
+# plot() neighborhoods and nyc_tracts
+plot(neighborhoods)
+plot(nyc_tracts)
+```
+
+
+```
+library(sp)
+library(raster)
+
+# Use spTransform on neighborhoods: neighborhoods
+neighborhoods <- spTransform(neighborhoods, CRS = proj4string(nyc_tracts))
+
+
+# head() on coordinates() of neighborhoods
+head(coordinates(neighborhoods))
+
+# Plot neighborhoods, nyc_tracts and water
+plot(neighborhoods)
+plot(nyc_tracts, add = T, col = "red")
+plot(water, add = T, col = "blue")
+```
+
+
+```
+library(sp)
+
+# Use str() on nyc_income and nyc_tracts@data
+str(nyc_income)
+str(nyc_tracts@data)
+
+
+# Highlight tract 002201 in nyc_tracts
+plot(nyc_tracts)
+plot(nyc_tracts[nyc_tracts$TRACTCE == "002201", ], 
+     col = "red", add = TRUE)
+
+# Set nyc_tracts@data to nyc_income
+nyc_tracts@data = nyc_income
+
+# Highlight tract 002201 in nyc_tracts
+plot(nyc_tracts)
+plot(nyc_tracts[nyc_tracts$tract == "002201", ], col = "red", add = TRUE)
+```
+
+sometimes you duplicate entries on accident, check for this
+
+```
+# Check for duplicates in nyc_income
+any(duplicated(nyc_income$tract))
+
+# Check for duplicates in nyc_tracts
+any(duplicated(nyc_tracts$TRACTCE))
+
+# Check nyc_tracts in nyc_income
+all(nyc_tracts$TRACTCE %in% nyc_income$tract)
+
+# Check nyc_income in nyc_tracts
+all(nyc_income$tract %in% nyc_tracts$TRACTCE)
+```
+
+```
+library(sp)
+library(tmap)
+
+# Merge nyc_tracts and nyc_income: nyc_tracts_merge
+nyc_tracts_merge <- merge(nyc_tracts, nyc_income, by.x = "TRACTCE", by.y = "tract")
+
+# Call summary() on nyc_tracts_merge
+summary(nyc_tracts_merge)
+
+# Choropleth with col mapped to estimate
+tm_shape(nyc_tracts_merge) + 
+tm_fill(col = "estimate")
+```
+
+```
+library(tmap)
+
+tm_shape(nyc_tracts_merge) +
+  tm_fill(col = "estimate") +
+  # Add a water layer, tm_fill() with col = "grey90"
+  tm_shape(water) +
+  tm_fill(col = "grey90") +
+  # Add a neighborhood layer, tm_borders()
+  tm_shape(neighborhoods) +
+  tm_borders() 
+```
+
+
+```
+library(tmap)
+
+# gsub() to replace " " with "\n"
+manhat_hoods$name <- gsub(" ", "\n", manhat_hoods$NTAName)
+
+# gsub() to replace "-" with "/\n"
+manhat_hoods$name <- gsub("-", "/\n", manhat_hoods$name)
+
+# Edit to map text to name, set size to 0.5
+tm_shape(nyc_tracts_merge) +
+    tm_fill(col = "estimate") +
+  tm_shape(water) +
+    tm_fill(col = "grey90") +
+  tm_shape(manhat_hoods) +
+    tm_borders() +
+    tm_text(text = "name", size = 0.5)
+```
+
+```
+library(tmap)
+
+tm_shape(nyc_tracts_merge) +
+  # Add title and change palette
+  tm_fill(col = "estimate", 
+          title = "Median Income",
+          palette = "Greens") +
+  # Add tm_borders()
+  tm_borders(col = "grey60", lwd = 0.5) +
+  tm_shape(water) +
+  tm_fill(col = "grey90") +
+  tm_shape(manhat_hoods) +
+  # Change col and lwd of neighborhood boundaries
+  tm_borders(col = "grey40", lwd = 2) +
+  tm_text(text = "name", size = 0.5) +
+  # Add tm_credits()
+  tm_credits("Source: ACS 2014 5-year Estimates, \n accessed via acs package", 
+             position = c("right", "bottom"))
+
+# Save map as "nyc_income_map.png"
+save_tmap(filename = "nyc_income_map.png", width = 4, height = 7)
+```
+
+
+
