@@ -1,29 +1,17 @@
 ---
-title: "SP Project"
+title:
 author: "Fisher Ankney"
 date: "3/11/2018"
 output: html_document
 ---
 
-PLAN - 
+### Greece
 
-- Normal picture of greece (DATA RETRIEVED)
+insert image of greek flag here
 
-- administrative areas (DATA RETRIEVED)
-http://www.diva-gis.org/gdata
+One of my favorite countries, visited twice, plan on going again whenever I get the chance. Perfect opportuntiy to test out new found spatial analysis skills in R on one of my favorite destinations. Understanding greece using technologies in R. Who said you need GIS? 
 
-- population distribution (DATA RETRIEVED)
-http://www.diva-gis.org/gdata
-
-- land cover / climate via raster? (DATA RETRIEVED)
-http://www.diva-gis.org/gdata
-
-- arceology in Crete (DATA RETRIEVED)
-
-- athens airbnb data (DATA RETRIEVED)
-http://insideairbnb.com/get-the-data.html
-
-```{r}
+```{r, message=F}
 library('tidyverse')    
 library('ggmap')
 library('sp')
@@ -35,31 +23,113 @@ library('RColorBrewer')
 library('viridisLite')
 ```
 
+<br> 
 
+If you forgot where Greece is
+```{r, message=F}
+greece <- c(lon = 21.8243, lat = 39.0742)
+
+greece_far <- get_map(greece, zoom = 5, scale = 1, maptype="terrain")
+
+ggmap(greece_far)
+```
+
+<br> 
+
+Greece is broken into 11 administrative regions 
+
+library(sp)
+library(rgdal)
+
+# Use dir() to find directory name
+dir()
+
+# Call dir() with directory name
+dir("nynta_16c")
+
+# Read in shapefile with readOGR(): neighborhoods
+neighborhoods <- readOGR("nynta_16c", "nynta")
+
+# summary() of neighborhoods
+summary(neighborhoods)
+
+```{r}
+dir("input/GRC_adm")
+
+grc_ad0 <- readOGR("input/GRC_adm", "GRC_adm0")
+grc_ad1 <- readOGR("input/GRC_adm", "GRC_adm1")
+grc_ad2 <- readOGR("input/GRC_adm", "GRC_adm2")
+grc_ad3 <- readOGR("input/GRC_adm", "GRC_adm3")
+
+summary(grc_ad0)
+summary(grc_ad1)
+summary(grc_ad2)
+summary(grc_ad3)
+
+tm_shape(grc_adm) + 
+  tm_borders()
+```
+http://www.diva-gis.org/gdata
+
+<br> 
+
+But most people live in athens or thesoliniki
+```{r}
+# population distribution (DATA RETRIEVED)
+```
+http://www.diva-gis.org/gdata
+
+<br> 
+
+Greece is mostly mountainous, arid, amazing climate 
+```{r}
+# land cover / climate via raster? (DATA RETRIEVED)
+```
+http://www.diva-gis.org/gdata
+
+<br> 
+
+Perhaps The next time I visit I'll go to the biggest island of all, Crete. 
 ```{r}
 crete <- c(lon = 24.8093, lat = 35.2401)
 
 crete_far <- get_map(crete, zoom = 5, scale = 1, maptype="terrain")
 
 ggmap(crete_far)
-```
 
-```{r}
 # Get map at zoom level 13: corvallis_map
 crete_map <- get_map(crete, zoom = 8, scale = 1)
 
 # Plot map at zoom level 13
 ggmap(crete_map)
+
 ```
 
-Arceology and Earthquakes on Crete - 
 
+many archeology sites on crete
+```{r}
+# arceology in Crete (DATA RETRIEVED)
+```
+<br> 
+
+and I better hurry because they're threatened by earthquakes
+```{r}
+# 
+earthquakes and archeology sites 
+```
 https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%B9-%CE%BD%CE%B1%CE%BF%CE%B9
 https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%BB%CE%BF%CE%B3%CE%B9%CE%BA%CE%BF%CE%B9-%CF%87%CF%89%CF%81%CE%BF%CE%B9
 https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CE%BD%CE%B1%CE%BA%CF%84%CE%BF%CF%81%CE%B1
 earthquakes - https://www.apdkritis.gov.gr/el/dataset/%CF%83%CE%B5%CE%B9%CF%83%CE%BC%CE%BF%CE%B9-%CF%83%CF%84%CE%B7%CE%BD-%CE%BA%CF%81%CE%B7%CF%84%CE%B7
 
+<br> 
+
+but where to stay? I heard it hard to get a room in athens and it's really expensive, is this true? 
 ```{r}
+# athens airbnb data (DATA RETRIEVED)
 ```
+http://insideairbnb.com/get-the-data.html
+
+Wow, can't wait to visit greece. also can't wait to learn more spatial analysis skills with R, really awesome! 
 
 
