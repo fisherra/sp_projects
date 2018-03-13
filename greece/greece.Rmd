@@ -16,11 +16,10 @@ library('tidyverse')
 library('ggmap')
 library('sp')
 library('tmap')
-library('raster')
 library('rgdal')
 library('tigris')
 library('RColorBrewer')
-library('viridisLite')
+library('classInt")
 ```
 
 <br> 
@@ -36,58 +35,64 @@ ggmap(greece_far)
 
 <br> 
 
-Greece is broken into 11 administrative regions 
-
-library(sp)
-library(rgdal)
-
-# Use dir() to find directory name
-dir()
-
-# Call dir() with directory name
-dir("nynta_16c")
-
-# Read in shapefile with readOGR(): neighborhoods
-neighborhoods <- readOGR("nynta_16c", "nynta")
-
-# summary() of neighborhoods
-summary(neighborhoods)
+Greece is broken up into 11 adm
 
 ```{r}
-dir("input/GRC_adm")
+#dir("input/periphereies")
 
-grc_ad0 <- readOGR("input/GRC_adm", "GRC_adm0")
-grc_ad1 <- readOGR("input/GRC_adm", "GRC_adm1")
-grc_ad2 <- readOGR("input/GRC_adm", "GRC_adm2")
-grc_ad3 <- readOGR("input/GRC_adm", "GRC_adm3")
 
-summary(grc_ad0)
-summary(grc_ad1)
-summary(grc_ad2)
-summary(grc_ad3)
+grc_shape <- readOGR("input/periphereies", "periphereies")
 
-tm_shape(grc_adm) + 
-  tm_borders()
+summary(grc_shape)
+
+str(grc_shape, max.level = 2)
+
+tm_shape(grc_shape) + 
+  tm_borders(lwd = 1, col = "#ffffff") + 
+  tm_fill(col = "#0D5EAF") 
 ```
-http://www.diva-gis.org/gdata
+
+http://geodata.gov.gr/en/dataset?tags=administrative-units
 
 <br> 
 
-But most people live in athens or thesoliniki
+but where to stay? I heard it hard to get a room in athens and it's really expensive, is this true? 
 ```{r}
-# population distribution (DATA RETRIEVED)
+athens_airbnb <- read_csv("input/listings (1).csv")
+athens_coord <- c(lon = 23.7275, lat = 37.9838)
+
+classIntervals(athens_airbnb$price, n = 5, style = "quantile")
+breaks <- c(9,25,35,46,69,5000)
+labels <- c("$9 - $25", "$25 - $35", "$35 - $46", "$46 - $69", "$69+")
+athens_airbnb$price <- cut(athens_airbnb$price, breaks = breaks, labels = labels)
+athens_airbnb$price
+
+athens <- get_map(athens_coord, zoom = 13, scale = 1, maptype="terrain")
+
+ggmap(athens) + 
+  geom_point(data = athens_airbnb, 
+             aes(longitude, latitude, col = price), 
+             alpha = 0.3) 
 ```
-http://www.diva-gis.org/gdata
+http://insideairbnb.com/get-the-data.html
 
-<br> 
 
-Greece is mostly mountainous, arid, amazing climate 
-```{r}
-# land cover / climate via raster? (DATA RETRIEVED)
-```
-http://www.diva-gis.org/gdata
 
-<br> 
+Wow, can't wait to visit greece. also can't wait to learn more spatial analysis skills with R, really awesome! 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Perhaps The next time I visit I'll go to the biggest island of all, Crete. 
 ```{r}
