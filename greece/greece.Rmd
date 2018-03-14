@@ -1,15 +1,15 @@
 ---
-title:
+title: "Geospatial Data with ggmap & tmap"
 author: "Fisher Ankney"
 date: "3/11/2018"
 output: html_document
 ---
 
-### Greece
+<br> 
 
-insert image of greek flag here
+I recently completed Data Camp's short course on [*Working With Geospatial Data in R*] ](https://www.datacamp.com/courses/working-with-geospatial-data-in-r), taught by Charolette Whickham. The course was about four hours in length and covered a variety of packages and methods for geospatial analysis in R. I found it really interesting and well worth my time, even though I'm not hoping to deeply specialize in spatial analyis. Finding, loading, and wrangling spatial data into a map can be really fun, but also quiet a hasel. I've taken the time to apply some of the techniques I've learned from the short course in this post. Enjoy! 
 
-One of my favorite countries, visited twice, plan on going again whenever I get the chance. Perfect opportuntiy to test out new found spatial analysis skills in R on one of my favorite destinations. Understanding greece using technologies in R. Who said you need GIS? 
+Let's pretend I'm attempting to figure out my next exoctic travel destination, but I can only use R to help! First, I need to load some R packages!
 
 ```{r, message=F}
 library('tidyverse')    
@@ -17,29 +17,77 @@ library('ggmap')
 library('sp')
 library('tmap')
 library('rgdal')
-library('tigris')
-library('RColorBrewer')
-library('classInt")
+library('classInt')
+library('viridisLite')
 ```
 
 <br> 
 
-If you forgot where Greece is
-```{r, message=F}
-greece <- c(lon = 21.8243, lat = 39.0742)
-
-greece_far <- get_map(greece, zoom = 5, scale = 1, maptype="terrain")
-
-ggmap(greece_far)
-```
-
-<br> 
-
-Greece is broken up into 11 adm
+The packages `ggmap`, `sp`, `tmap`, `rgdal`, `classInt`, and `viridisLite` were all covered in Data Camp's geospatial course. The course also covered `raster`, `tigris`, and `RColorBrewer`, but I'm not going to use them in this post. Now that I've got the packages loaded, let's take a look at a plot of the Earth! Where to go, where to go? 
 
 ```{r}
-#dir("input/periphereies")
+# Load World dataset from package tmap
+data("World")
 
+# Plot the world 
+tm_shape(World) + 
+  tm_borders() +
+  tm_fill(col = "pop_est", style = "fisher") + 
+  tm_style_natural() + 
+  tm_compass()
+```
+
+<br> 
+
+Let's see, I want to go somewhere developed this time! 
+
+```{r}
+
+vir <- viridis(5)
+
+
+tm_shape(World) + 
+  tm_borders() + 
+  tm_compass() + 
+  tm_fill(col = "economy", palette = vir, style = "quantile")
+```
+
+<br> 
+
+Particularly southern Europe! 
+```{r}
+data(Europe)
+
+tm_shape(Europe) + 
+  tm_borders() + 
+  tm_fill(col = "part") + 
+  tm_style_white()
+```
+I want to go somewhere where the people are happy, but also where it's nice and warm! 
+
+```{r}
+data(Europe)
+
+s_europe <- Europe$part == "Southern Europe"
+s_europe
+
+for (i in seq_along(s_europe)) {
+  if ( is.na(s_europe[[i]]) ) {
+    s_europe[[i]] <- FALSE
+  } 
+}
+
+tm_shape(Europe[s_europe,]) + 
+  tm_borders() +   
+  tm_fill(col = "well_being") + 
+  tm_style_white()
+```
+
+<br> 
+
+Greece! I want to go to greece (for the third time...)
+
+```{r, message=F}
 
 grc_shape <- readOGR("input/periphereies", "periphereies")
 
@@ -56,9 +104,10 @@ http://geodata.gov.gr/en/dataset?tags=administrative-units
 
 <br> 
 
-but where to stay? I heard it hard to get a room in athens and it's really expensive, is this true? 
+
+but where to stay? I'm going to fly into Athens, are there any airbnb's around? 
 ```{r}
-athens_airbnb <- read_csv("input/listings (1).csv")
+athens_airbnb <- read_csv("input/airbnb_data.csv")
 athens_coord <- c(lon = 23.7275, lat = 37.9838)
 
 classIntervals(athens_airbnb$price, n = 5, style = "quantile")
@@ -72,69 +121,48 @@ athens <- get_map(athens_coord, zoom = 13, scale = 1, maptype="terrain")
 ggmap(athens) + 
   geom_point(data = athens_airbnb, 
              aes(longitude, latitude, col = price), 
-             alpha = 0.3) 
+             alpha = 0.3) + 
+  scale_color_manual(values = c("#0D0887FF", "#7E03A8FF", "#CC4678FF", "#F89441FF", "#F0F921FF"))
+
 ```
 http://insideairbnb.com/get-the-data.html
 
-
-
-Wow, can't wait to visit greece. also can't wait to learn more spatial analysis skills with R, really awesome! 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Perhaps The next time I visit I'll go to the biggest island of all, Crete. 
-```{r}
-crete <- c(lon = 24.8093, lat = 35.2401)
-
-crete_far <- get_map(crete, zoom = 5, scale = 1, maptype="terrain")
-
-ggmap(crete_far)
-
-# Get map at zoom level 13: corvallis_map
-crete_map <- get_map(crete, zoom = 8, scale = 1)
-
-# Plot map at zoom level 13
-ggmap(crete_map)
-
-```
-
-
-many archeology sites on crete
-```{r}
-# arceology in Crete (DATA RETRIEVED)
-```
 <br> 
 
-and I better hurry because they're threatened by earthquakes
+But I only want to stay in a swanky place that has been reviewd so i know its legit
 ```{r}
-# 
-earthquakes and archeology sites 
+athens_airbnb <- read_csv("input/airbnb_data.csv")
+athens_zoom <- get_map(athens_coord, zoom = 14, scale = 1, maptype="terrain")
+
+swanky_bnb <- athens_airbnb %>%
+  filter(price > 150 & number_of_reviews > 5)
+swanky_bnb
+
+ggmap(athens_zoom) + 
+  geom_point(data = swanky_bnb, 
+             aes(longitude, latitude, col = price), 
+             alpha = 0.8, 
+             size = 6) + 
+    scale_color_continuous(low = "#0D0887FF", high = "#F0F921FF")
 ```
-https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%B9-%CE%BD%CE%B1%CE%BF%CE%B9
-https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CF%81%CF%87%CE%B1%CE%B9%CE%BF%CE%BB%CE%BF%CE%B3%CE%B9%CE%BA%CE%BF%CE%B9-%CF%87%CF%89%CF%81%CE%BF%CE%B9
-https://www.apdkritis.gov.gr/el/dataset/%CE%B1%CE%BD%CE%B1%CE%BA%CF%84%CE%BF%CF%81%CE%B1
-earthquakes - https://www.apdkritis.gov.gr/el/dataset/%CF%83%CE%B5%CE%B9%CF%83%CE%BC%CE%BF%CE%B9-%CF%83%CF%84%CE%B7%CE%BD-%CE%BA%CF%81%CE%B7%CF%84%CE%B7
 
-<br> 
 
-but where to stay? I heard it hard to get a room in athens and it's really expensive, is this true? 
+
+in fact, ill make my own souvinere 
 ```{r}
-# athens airbnb data (DATA RETRIEVED)
+santorini_coord <- c(lon = 25.4115, lat = 36.4052)
+
+santorini <- get_map(santorini_coord, zoom = 12, scale = 1, maptype="watercolor")
+
+ggmap(santorini)
+
 ```
-http://insideairbnb.com/get-the-data.html
 
-Wow, can't wait to visit greece. also can't wait to learn more spatial analysis skills with R, really awesome! 
+Athens street map artsy
+```{r}
+athens_coord <- c(lon = 23.7275, lat = 37.9838)
 
+greece <- get_map(athens_coord, zoom = 12, scale = 1, maptype = "terrain-lines")
 
+ggmap(greece) 
+```
