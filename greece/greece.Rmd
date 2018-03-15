@@ -7,9 +7,9 @@ output: html_document
 
 <br> 
 
-I recently completed Data Camp's short course on [*Working With Geospatial Data in R*] ](https://www.datacamp.com/courses/working-with-geospatial-data-in-r), taught by Charolette Whickham. The course was about four hours in length and covered a variety of packages and methods for geospatial analysis in R. I found it really interesting and well worth my time, even though I'm not hoping to deeply specialize in spatial analyis. Finding, loading, and wrangling spatial data into a map can be really fun, but also quiet a hasel. I've taken the time to apply some of the techniques I've learned from the short course in this post. Enjoy! 
+I recently completed Data Camp's short course on [*Working With Geospatial Data in R*] ](https://www.datacamp.com/courses/working-with-geospatial-data-in-r), taught by Charolette Whickham. The course was about four hours long and introduced a variety of packages and methods for geospatial analysis in R. It was an engaging short course that was well worth my time, even though I'm not hoping to specialize in spatial analyis. Finding, loading, and wrangling spatial data has a steep learning curve, but is really fun once you get the hang of it. 
 
-Let's pretend I'm attempting to figure out my next exoctic travel destination, but I can only use R to help! First, I need to load some R packages!
+To help cement these blossoming skills, I'm going to create several visualizations to help me plan my next hypothetical trip abroad! First I need to load some essential spatial analysis packages. The packages `ggmap`, `sp`, `tmap`, `rgdal`, `classInt`, and `viridisLite` were all covered in Data Camp's geospatial course. The course also covered `raster`, `tigris`, and `RColorBrewer`, but I'm not going to use them in this post.
 
 ```{r, message=F}
 library('tidyverse')    
@@ -23,51 +23,67 @@ library('viridisLite')
 
 <br> 
 
-The packages `ggmap`, `sp`, `tmap`, `rgdal`, `classInt`, and `viridisLite` were all covered in Data Camp's geospatial course. The course also covered `raster`, `tigris`, and `RColorBrewer`, but I'm not going to use them in this post. Now that I've got the packages loaded, let's take a look at a plot of the Earth! Where to go, where to go? 
+Now that I've got the packages loaded, let's load some data and have a look at the world to get the wanderlust flowing. 
 
 ```{r}
 # Load World dataset from package tmap
 data("World")
 
-# Plot the world 
+# Plot the world according to population
 tm_shape(World) + 
   tm_borders() +
-  tm_fill(col = "pop_est", style = "fisher") + 
+  tm_fill(title = "Population Estimate", 
+          col = "pop_est", 
+          style = "fisher",
+          labels = c("0 - 33 Million",
+                     "33 - 105 Million",
+                     "105 - 220 Million", 
+                     "220 - 740 Million", 
+                     "740 - 1,339 Million"
+                     )
+          ) + 
   tm_style_natural() + 
-  tm_compass()
+  tm_compass() + 
+  tm_layout(frame = F)
 ```
 
-<br> 
-
-Let's see, I want to go somewhere developed this time! 
+This is a pretty cool map, informative and pleasing to the eye. I think the `fisher` method of processing the color breaks for population was a good choice. Now let's see the world divided up by economic development! I just recently got back from a trip to South East Asia, and I'm looking to go somewhere a little bit more developed this time! 
 
 ```{r}
-
+# Create a custom color palette
 vir <- viridis(5)
 
-
+# Plot the world based on economic development
 tm_shape(World) + 
   tm_borders() + 
   tm_compass() + 
-  tm_fill(col = "economy", palette = vir, style = "quantile")
+  tm_fill(title ="Economic Development",
+          col = "economy",
+          palette = vir,
+          style = "quantile"
+          ) 
 ```
 
-<br> 
+I really like the `viridisLite` color palettes, They're specially designed to work with all types of color-blindness and translate to grayscale well. After viewing this plot of economic development, I'm thinking that a trip to Europe will be in my near future! But what part of Europe?
 
-Particularly southern Europe! 
 ```{r}
+# Load tmap package data on Europe
 data(Europe)
 
+# Plot a map of Europe based on geographic divisions
 tm_shape(Europe) + 
   tm_borders() + 
-  tm_fill(col = "part") + 
-  tm_style_white()
+  tm_fill(title = "Part",
+          col = "part",
+          palette = vir,
+          textNA = "Not Europe"
+          ) + 
+  tm_style_white() 
 ```
-I want to go somewhere where the people are happy, but also where it's nice and warm! 
 
-```{r}
-data(Europe)
+Don't let Czechia know that the `tmap` package considers them Eastern Europe! Of course these divisions come from the United Nations Statistical Division, and don't include a category for Central Europe. Moving foward, I think a trip to Southern Europe would be just what I'm looking for! 
 
+```{r, message=F}
 s_europe <- Europe$part == "Southern Europe"
 s_europe
 
@@ -77,10 +93,31 @@ for (i in seq_along(s_europe)) {
   } 
 }
 
+```
+
+
+```{r}
+# Reset the color palette for 4 variables
+vir <- viridis(4)
+
+# Map Southern Europe
 tm_shape(Europe[s_europe,]) + 
   tm_borders() +   
-  tm_fill(col = "well_being") + 
-  tm_style_white()
+  tm_fill(title = "Population Estimate",
+          col = "pop_est", 
+          palette = vir
+          labels = c("0 - 20 Million",
+                     "20 - 40 Million", 
+                     "40 - 60 Million", 
+                     "60 - 80 Million")
+          ) + 
+  tm_style_white() + 
+  tm_text("iso_a3", size="AREA", root=5) +
+  tm_layout(title = "Southern Europe by Population",
+            inner.margins = c(0.05, 0.1, 0.25, 0.05),
+            scale = 0.85
+            )
+  
 ```
 
 <br> 
@@ -95,7 +132,7 @@ summary(grc_shape)
 
 str(grc_shape, max.level = 2)
 
-tm_shape(grc_shape) + 
+tm_shape(grc_shape, simplify = .5) + 
   tm_borders(lwd = 1, col = "#ffffff") + 
   tm_fill(col = "#0D5EAF") 
 ```
