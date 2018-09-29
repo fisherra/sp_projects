@@ -62,7 +62,7 @@ look at the world to get the wanderlust flowing!
       tm_compass() + 
       tm_layout(frame = F)
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](greece/output/unnamed-chunk-2-1.png)
 
 This is a pretty cool map, informative and pleasing to the eye. I think
 the `fisher` method of processing the color breaks for population was a
@@ -85,7 +85,7 @@ to go somewhere a little more developed this time!
               style = "quantile"
               ) 
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+![](greece/output/unnamed-chunk-3-1.png)
 
 I really like the `viridisLite` color palettes, they’re specially
 designed to work with color-blindness and they translate to grayscale
@@ -107,7 +107,7 @@ a trip to Europe will be in my near future! But what part of Europe?
               ) + 
       tm_style_white() 
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-4-1.png)
+![](greece/output/unnamed-chunk-4-1.png)
 
 <br>
 
@@ -151,7 +151,7 @@ with the colors based on population.
                 scale = 0.85
                 )
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-5-1.png)
+![](greece/output/unnamed-chunk-5-1.png)
 
 There's probably an easier way to plot only the countries of Southern
 Europe, but I wanted a chance to practice my iteration skills. Of these
@@ -190,7 +190,7 @@ practice using the `rgdal` package for loading spatial data.
                 title = "GREECE",
                 fontface = 4)
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](greece_files/output/unnamed-chunk-7-1.png)
 
 While this visualization isn't extremely informative, it's nice to look
 at! The white and blue color combination mimics the Greek flag. The
@@ -241,7 +241,7 @@ from <http://insideairbnb.com/get-the-data.html>.
       scale_color_manual(name = "Price per Night", 
                          values = c("#0D0887FF", "#7E03A8FF", "#CC4678FF", "#F89441FF", "#F0F921FF"))
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+![](greece_files/output/unnamed-chunk-8-1.png)
 
 <br>
 
@@ -297,7 +297,7 @@ have a few reviews on them already, to make sure they're legit.
 
 <br>
 
-I think that $250 - $315 BnB next to Hadrian's Library is the one for
+I think that \$250 - $315 BnB next to Hadrian's Library is the one for
 me! I'm sure this would have been easier to do on Airbnb.com, but then I
 wouldn't have been able to practice my R skills would I?
 
@@ -342,7 +342,7 @@ too!
             axis.text = element_blank(),
             axis.title = element_blank())
 
-![](greece_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+![](greece/output/unnamed-chunk-11-1.png)
 
 <br>
 
