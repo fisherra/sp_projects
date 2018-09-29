@@ -241,7 +241,7 @@ from <http://insideairbnb.com/get-the-data.html>.
       scale_color_manual(name = "Price per Night", 
                          values = c("#0D0887FF", "#7E03A8FF", "#CC4678FF", "#F89441FF", "#F0F921FF"))
 
-![](greece_files/output/unnamed-chunk-8-1.png)
+![](greece/output/unnamed-chunk-8-1.png)
 
 <br>
 
